@@ -6,11 +6,13 @@
  */ 
 
 #include <avr/io.h>
+#include <util/delay.h>
 
 int stateTable[2][3] = {{1,0,1},
 					  {2,2,0}};
 int state;
 int button;
+int pressed;
 
 void off();
 void rotate();
@@ -25,9 +27,11 @@ void buttonPressed();
 int main(void)
 {
 	DDRF = 0x0f;
-	PORTF = 0xc0;
+	PORTF |= 0xc0;
 	state = 0;
+	pressed = 0;
 	
+	/*
     while((PINF & 0x40) && (PINF & 0x80));	//wait for a button to be pressed
     if((PINF & 0x40) == 0){ 		//if button0 was pressed
 	    while(!(PINF & 0x40));  		//wait for button0 to be released
@@ -36,10 +40,34 @@ int main(void)
 	    while(!(PINF & 0x80));  		//wait for button1 to be released
 	    button = 1;
     }
+	*/	
 	
     while (1) 
     {
-	        buttonPressed();
+	    switch(state) {
+		    case 1:
+		    rotate();
+		    break;
+		    case 2:
+		    flash();
+		    break;
+		    default:
+		    off();
+		    break;
+	    }
+			while((PINF & 0x40) && (PINF & 0x80));	//wait for a button to be pressed
+			if((PINF & 0x40) == 0){ 		 //if button0 was pressed
+				while(!(PINF & 0x40));  		//wait for button0 to be released
+				PORTF |= 0xf;
+				_delay_ms(200);
+				PORTF &= 0xf0;
+				_delay_ms(200);
+				PORTF |= 0xf;
+			} else if ((PINF & 0x80) == 0) { //button1 was pressed
+				while(!(PINF & 0x80));  		//wait for button1 to be released
+				PORTF &= 0xf0;
+			}
+			//buttonPressed();
     }
 }
 
@@ -52,7 +80,7 @@ void off() {
     if((PINF & 0x40) == 0){ 		//if button0 was pressed
 	    while(!(PINF & 0x40));  		//wait for button0 to be released
 	    button = 0;
-    } else { 				//button1 was pressed
+    } else { 						//button1 was pressed
 	    while(!(PINF & 0x80));  		//wait for button1 to be released
 	    button = 1;
     }
@@ -89,46 +117,51 @@ void rotate() {
 
 // flash the lights for 200 mSec and off for 1 sec
 void flash() {
+	//decrement counter 40 for 200 ms
 	while(1) {
 		PORTF |= 0xf;
+		for(int i = 40; i > 0; i--) {
+			if((PINF & 0x40) && (PINF & 0x80))
+				_delay_ms(5);
+			else {
+				_delay_ms(5);
+				if (PINF)
+			}
+		}
 		button = delay(200);
 		PORTF &= 0x0;
 		if(button >= 0)
 			return;
-		button = delay(1000);
+		button = delay(1000, ((PINF >> 6) & 0x3));
 		PORTF &= 0x0;
 		if(button >= 0)
 			return;
 	}
 }
 
-int delay(unsigned int msec) {
+int delay(unsigned int msec, int prev) {
+	int newState;
 	unsigned int count = msec / 5;
-	for(int i = 0; i < count; i++) {
-		if((PINF & 0x40) && (PINF & 0x80)) //if a button was not pressed
-			delay_usec(5);
-		else {
-			if((PINF & 0x40) == 0) //if button0 was pressed
-				return 0;
-			else 		//else button1 was pressed
-				return 1;
+	switch (prev) {
+	case 0x3:
+		for(int i = 0; i < count; i++) {
+			if((PINF & 0x40) && (PINF & 0x80)) //if a button was not pressed
+				_delay_ms(5);
+			else {
+				if((PINF & 0x40) == 0) //if button0 was pressed
+					return 0;
+				else 		//else button1 was pressed
+					return 1;
+			}
 		}
+		break;
+	case 0x2:
+		 
 	}
-	return -1;
+	return newState;
 }
 
 void changeState() {
-	switch(state) {
-		case 1:
-			rotate();
-			break;
-		case 2:
-			flash();
-			break;
-		default:
-			off();
-			break;
-	}	
 }
 
 void buttonPressed() {
