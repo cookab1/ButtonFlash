@@ -6,19 +6,19 @@
  */ 
 
 #include <avr/io.h>
-#include "bool.h"
 
-
-int stateTable[][] = {1,0,1},{2,2,0};
+int stateTable[2][3] = {{1,0,1},
+					  {2,2,0}};
 int state;
 int button;
 
-int off();
-int rotate();
-int flash();
+void off();
+void rotate();
+void flash();
+
 
 void delay_usec(unsigned int);
-void delay(unsigned int);
+int delay(unsigned int);
 void changeState();
 void buttonPressed();
 
@@ -34,7 +34,7 @@ int main(void)
 	    button = 0;
     } else { 				//button1 was pressed
 	    while(!(PINF & 0x80));  		//wait for button1 to be released
-	    button = 1
+	    button = 1;
     }
 	
     while (1) 
@@ -44,7 +44,7 @@ int main(void)
 }
 
 //lights are off
-int off() {
+void off() {
 	if((PORTF & 0x0f) != 0)
 		PORTF &= 0xf0;
 	
@@ -54,51 +54,51 @@ int off() {
 	    button = 0;
     } else { 				//button1 was pressed
 	    while(!(PINF & 0x80));  		//wait for button1 to be released
-	    button = 1
+	    button = 1;
     }
 }
 
 //rotate the lights being on from 0 - 3 each in turn
-int rotate() {
+void rotate() {
 	while(1) {
 		PORTF |= 0x1;
 		button = delay(1000);
 		PORTF &= 0x0;
 		if(button >= 0)
-			return button;
+			return;
 		
 		PORTF |= 0x2;
 		button = delay(1000);
 		PORTF &= 0x0;
 		if(button >= 0)
-			return button;
+			return;
 		
 		PORTF |= 0x4;
 		button = delay(1000);
 		PORTF &= 0x0;
 		if(button >= 0)
-			return button;
+			return;
 		
 		PORTF |= 0x8;
 		button = delay(1000);
 		PORTF &= 0x0;
 		if(button >= 0)
-			return button;
+			return;
 	}
 }
 
 // flash the lights for 200 mSec and off for 1 sec
-int flash() {
+void flash() {
 	while(1) {
 		PORTF |= 0xf;
 		button = delay(200);
 		PORTF &= 0x0;
 		if(button >= 0)
-			return button;
+			return;
 		button = delay(1000);
 		PORTF &= 0x0;
 		if(button >= 0)
-			return button;
+			return;
 	}
 }
 
@@ -107,14 +107,14 @@ int delay(unsigned int msec) {
 	for(int i = 0; i < count; i++) {
 		if((PINF & 0x40) && (PINF & 0x80)) //if a button was not pressed
 			delay_usec(5);
-		else
-			if((PINF & 0x40) == 0){ //if button0 was pressed
+		else {
+			if((PINF & 0x40) == 0) //if button0 was pressed
 				return 0;
-			} else { 		//else button1 was pressed
+			else 		//else button1 was pressed
 				return 1;
-				
+		}
 	}
-		return -1;
+	return -1;
 }
 
 void changeState() {

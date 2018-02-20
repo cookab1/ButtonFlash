@@ -3,29 +3,31 @@ ButtonFlash.elf:     file format elf32-avr
 
 Sections:
 Idx Name          Size      VMA       LMA       File off  Algn
-  0 .data         00000006  00800200  00000196  0000022a  2**0
+  0 .data         0000000c  00800200  00000396  0000042a  2**0
                   CONTENTS, ALLOC, LOAD, DATA
-  1 .text         00000196  00000000  00000000  00000094  2**1
+  1 .text         00000396  00000000  00000000  00000094  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
-  2 .bss          00000002  00800206  00800206  00000230  2**0
+  2 .bss          00000004  0080020c  0080020c  00000436  2**0
                   ALLOC
-  3 .comment      00000030  00000000  00000000  00000230  2**0
+  3 .comment      00000030  00000000  00000000  00000436  2**0
                   CONTENTS, READONLY
-  4 .note.gnu.avr.deviceinfo 00000040  00000000  00000000  00000260  2**2
+  4 .note.gnu.avr.deviceinfo 00000040  00000000  00000000  00000468  2**2
                   CONTENTS, READONLY
-  5 .debug_aranges 00000038  00000000  00000000  000002a0  2**0
+  5 .debug_aranges 00000070  00000000  00000000  000004a8  2**3
                   CONTENTS, READONLY, DEBUGGING
-  6 .debug_info   00000d79  00000000  00000000  000002d8  2**0
+  6 .debug_info   00000ed5  00000000  00000000  00000518  2**0
                   CONTENTS, READONLY, DEBUGGING
-  7 .debug_abbrev 00000c06  00000000  00000000  00001051  2**0
+  7 .debug_abbrev 00000c68  00000000  00000000  000013ed  2**0
                   CONTENTS, READONLY, DEBUGGING
-  8 .debug_line   0000038d  00000000  00000000  00001c57  2**0
+  8 .debug_line   00000587  00000000  00000000  00002055  2**0
                   CONTENTS, READONLY, DEBUGGING
-  9 .debug_frame  00000054  00000000  00000000  00001fe4  2**2
+  9 .debug_frame  00000098  00000000  00000000  000025dc  2**2
                   CONTENTS, READONLY, DEBUGGING
- 10 .debug_str    00000560  00000000  00000000  00002038  2**0
+ 10 .debug_str    00000593  00000000  00000000  00002674  2**0
                   CONTENTS, READONLY, DEBUGGING
- 11 .debug_ranges 00000028  00000000  00000000  00002598  2**0
+ 11 .debug_loc    00000155  00000000  00000000  00002c07  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 12 .debug_ranges 00000060  00000000  00000000  00002d5c  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -161,19 +163,19 @@ Disassembly of section .text:
   f6:	a0 e0       	ldi	r26, 0x00	; 0
   f8:	b2 e0       	ldi	r27, 0x02	; 2
   fa:	e6 e9       	ldi	r30, 0x96	; 150
-  fc:	f1 e0       	ldi	r31, 0x01	; 1
+  fc:	f3 e0       	ldi	r31, 0x03	; 3
   fe:	00 e0       	ldi	r16, 0x00	; 0
  100:	0b bf       	out	0x3b, r16	; 59
  102:	02 c0       	rjmp	.+4      	; 0x108 <__do_copy_data+0x14>
  104:	07 90       	elpm	r0, Z+
  106:	0d 92       	st	X+, r0
- 108:	a6 30       	cpi	r26, 0x06	; 6
+ 108:	ac 30       	cpi	r26, 0x0C	; 12
  10a:	b1 07       	cpc	r27, r17
  10c:	d9 f7       	brne	.-10     	; 0x104 <__do_copy_data+0x10>
 
 0000010e <__do_clear_bss>:
  10e:	22 e0       	ldi	r18, 0x02	; 2
- 110:	a6 e0       	ldi	r26, 0x06	; 6
+ 110:	ac e0       	ldi	r26, 0x0C	; 12
  112:	b2 e0       	ldi	r27, 0x02	; 2
  114:	01 c0       	rjmp	.+2      	; 0x118 <.do_clear_bss_start>
 
@@ -181,86 +183,478 @@ Disassembly of section .text:
  116:	1d 92       	st	X+, r1
 
 00000118 <.do_clear_bss_start>:
- 118:	a8 30       	cpi	r26, 0x08	; 8
+ 118:	a0 31       	cpi	r26, 0x10	; 16
  11a:	b2 07       	cpc	r27, r18
  11c:	e1 f7       	brne	.-8      	; 0x116 <.do_clear_bss_loop>
- 11e:	02 d0       	rcall	.+4      	; 0x124 <main>
- 120:	38 c0       	rjmp	.+112    	; 0x192 <_exit>
+ 11e:	0b d1       	rcall	.+534    	; 0x336 <main>
+ 120:	38 c1       	rjmp	.+624    	; 0x392 <_exit>
 
 00000122 <__bad_interrupt>:
  122:	6e cf       	rjmp	.-292    	; 0x0 <__vectors>
 
-00000124 <main>:
+00000124 <delay_usec>:
 
-void delay_usec(unsigned int);
+		.text
+		.global delay_usec
+
+delay_usec:
+		dec		r24		// 1 cycle
+ 124:	8a 95       	dec	r24
+		brlt	L3		//if false 1 cycle else 2
+ 126:	8c f0       	brlt	.+34     	; 0x14a <L3>
+		brge	L4		
+ 128:	44 f4       	brge	.+16     	; 0x13a <L4>
+
+0000012a <L1>:
+	...
+
+0000013a <L4>:
+		nop
+		nop
+		nop
+		nop
+		nop
+L4:		dec		r24		
+ 13a:	8a 95       	dec	r24
+	...
+		nop			
+		nop			
+		nop
+		nop
+		nop
+ 144:	00 00       	nop
+		brge	L1	
+ 146:	8c f7       	brge	.-30     	; 0x12a <L1>
+
+00000148 <L2>:
+L2:  	ret				// 5 cycles
+ 148:	08 95       	ret
+
+0000014a <L3>:
+L3:		adiw	r24, 33 // 1 cycle
+ 14a:	81 96       	adiw	r24, 0x21	; 33
+		lsl		r24
+ 14c:	88 0f       	add	r24, r24
+		lsl		r24
+ 14e:	88 0f       	add	r24, r24
+		lsl		r24
+ 150:	88 0f       	add	r24, r24
+		mul		r24, r24 // 2 cycles
+ 152:	88 9f       	mul	r24, r24
+		dec		r24
+ 154:	8a 95       	dec	r24
+ 156:	4c f7       	brge	.-46     	; 0x12a <L1>
+
+00000158 <off>:
+    }
+}
+
+//lights are off
+void off() {
+	if((PORTF & 0x0f) != 0)
+ 158:	81 b3       	in	r24, 0x11	; 17
+ 15a:	8f 70       	andi	r24, 0x0F	; 15
+ 15c:	19 f0       	breq	.+6      	; 0x164 <off+0xc>
+		PORTF &= 0xf0;
+ 15e:	81 b3       	in	r24, 0x11	; 17
+ 160:	80 7f       	andi	r24, 0xF0	; 240
+ 162:	81 bb       	out	0x11, r24	; 17
+	
+    while((PINF & 0x40) && (PINF & 0x80)); 	//wait for a button to be pressed
+ 164:	7e 9b       	sbis	0x0f, 6	; 15
+ 166:	02 c0       	rjmp	.+4      	; 0x16c <off+0x14>
+ 168:	7f 99       	sbic	0x0f, 7	; 15
+ 16a:	fc cf       	rjmp	.-8      	; 0x164 <off+0xc>
+    if((PINF & 0x40) == 0){ 		//if button0 was pressed
+ 16c:	7e 99       	sbic	0x0f, 6	; 15
+ 16e:	07 c0       	rjmp	.+14     	; 0x17e <off+0x26>
+	    while(!(PINF & 0x40));  		//wait for button0 to be released
+ 170:	7e 9b       	sbis	0x0f, 6	; 15
+ 172:	fe cf       	rjmp	.-4      	; 0x170 <off+0x18>
+	    button = 0;
+ 174:	10 92 0d 02 	sts	0x020D, r1	; 0x80020d <__data_end+0x1>
+ 178:	10 92 0c 02 	sts	0x020C, r1	; 0x80020c <__data_end>
+ 17c:	08 95       	ret
+    } else { 				//button1 was pressed
+	    while(!(PINF & 0x80));  		//wait for button1 to be released
+ 17e:	7f 9b       	sbis	0x0f, 7	; 15
+ 180:	fe cf       	rjmp	.-4      	; 0x17e <off+0x26>
+	    button = 1;
+ 182:	81 e0       	ldi	r24, 0x01	; 1
+ 184:	90 e0       	ldi	r25, 0x00	; 0
+ 186:	90 93 0d 02 	sts	0x020D, r25	; 0x80020d <__data_end+0x1>
+ 18a:	80 93 0c 02 	sts	0x020C, r24	; 0x80020c <__data_end>
+ 18e:	08 95       	ret
+
+00000190 <delay>:
+		if(button >= 0)
+			return;
+	}
+}
+
+int delay(unsigned int msec) {
+ 190:	0f 93       	push	r16
+ 192:	1f 93       	push	r17
+ 194:	cf 93       	push	r28
+ 196:	df 93       	push	r29
+	unsigned int count = msec / 5;
+ 198:	9c 01       	movw	r18, r24
+ 19a:	ad ec       	ldi	r26, 0xCD	; 205
+ 19c:	bc ec       	ldi	r27, 0xCC	; 204
+ 19e:	ea d0       	rcall	.+468    	; 0x374 <__umulhisi3>
+ 1a0:	96 95       	lsr	r25
+ 1a2:	87 95       	ror	r24
+ 1a4:	96 95       	lsr	r25
+ 1a6:	87 95       	ror	r24
+	for(int i = 0; i < count; i++) {
+ 1a8:	00 97       	sbiw	r24, 0x00	; 0
+ 1aa:	b9 f4       	brne	.+46     	; 0x1da <delay+0x4a>
+				return 0;
+			else 		//else button1 was pressed
+				return 1;
+		}
+	}
+	return -1;
+ 1ac:	8f ef       	ldi	r24, 0xFF	; 255
+ 1ae:	9f ef       	ldi	r25, 0xFF	; 255
+ 1b0:	1c c0       	rjmp	.+56     	; 0x1ea <delay+0x5a>
+}
+
+int delay(unsigned int msec) {
+	unsigned int count = msec / 5;
+	for(int i = 0; i < count; i++) {
+		if((PINF & 0x40) && (PINF & 0x80)) //if a button was not pressed
+ 1b2:	7e 9b       	sbis	0x0f, 6	; 15
+ 1b4:	0c c0       	rjmp	.+24     	; 0x1ce <delay+0x3e>
+ 1b6:	7f 9b       	sbis	0x0f, 7	; 15
+ 1b8:	0a c0       	rjmp	.+20     	; 0x1ce <delay+0x3e>
+			delay_usec(5);
+ 1ba:	85 e0       	ldi	r24, 0x05	; 5
+ 1bc:	90 e0       	ldi	r25, 0x00	; 0
+ 1be:	b2 df       	rcall	.-156    	; 0x124 <delay_usec>
+	}
+}
+
+int delay(unsigned int msec) {
+	unsigned int count = msec / 5;
+	for(int i = 0; i < count; i++) {
+ 1c0:	21 96       	adiw	r28, 0x01	; 1
+ 1c2:	c0 17       	cp	r28, r16
+ 1c4:	d1 07       	cpc	r29, r17
+ 1c6:	a9 f7       	brne	.-22     	; 0x1b2 <delay+0x22>
+				return 0;
+			else 		//else button1 was pressed
+				return 1;
+		}
+	}
+	return -1;
+ 1c8:	8f ef       	ldi	r24, 0xFF	; 255
+ 1ca:	9f ef       	ldi	r25, 0xFF	; 255
+ 1cc:	0e c0       	rjmp	.+28     	; 0x1ea <delay+0x5a>
+	unsigned int count = msec / 5;
+	for(int i = 0; i < count; i++) {
+		if((PINF & 0x40) && (PINF & 0x80)) //if a button was not pressed
+			delay_usec(5);
+		else {
+			if((PINF & 0x40) == 0) //if button0 was pressed
+ 1ce:	8f b1       	in	r24, 0x0f	; 15
+				return 0;
+ 1d0:	86 fb       	bst	r24, 6
+ 1d2:	88 27       	eor	r24, r24
+ 1d4:	80 f9       	bld	r24, 0
+ 1d6:	90 e0       	ldi	r25, 0x00	; 0
+ 1d8:	08 c0       	rjmp	.+16     	; 0x1ea <delay+0x5a>
+}
+
+int delay(unsigned int msec) {
+	unsigned int count = msec / 5;
+	for(int i = 0; i < count; i++) {
+		if((PINF & 0x40) && (PINF & 0x80)) //if a button was not pressed
+ 1da:	7e 9b       	sbis	0x0f, 6	; 15
+ 1dc:	f8 cf       	rjmp	.-16     	; 0x1ce <delay+0x3e>
+ 1de:	7f 9b       	sbis	0x0f, 7	; 15
+ 1e0:	f6 cf       	rjmp	.-20     	; 0x1ce <delay+0x3e>
+ 1e2:	8c 01       	movw	r16, r24
+ 1e4:	c0 e0       	ldi	r28, 0x00	; 0
+ 1e6:	d0 e0       	ldi	r29, 0x00	; 0
+ 1e8:	e8 cf       	rjmp	.-48     	; 0x1ba <delay+0x2a>
+			else 		//else button1 was pressed
+				return 1;
+		}
+	}
+	return -1;
+}
+ 1ea:	df 91       	pop	r29
+ 1ec:	cf 91       	pop	r28
+ 1ee:	1f 91       	pop	r17
+ 1f0:	0f 91       	pop	r16
+ 1f2:	08 95       	ret
+
+000001f4 <rotate>:
+}
+
+//rotate the lights being on from 0 - 3 each in turn
+void rotate() {
+	while(1) {
+		PORTF |= 0x1;
+ 1f4:	88 9a       	sbi	0x11, 0	; 17
+		button = delay(1000);
+ 1f6:	88 ee       	ldi	r24, 0xE8	; 232
+ 1f8:	93 e0       	ldi	r25, 0x03	; 3
+ 1fa:	ca df       	rcall	.-108    	; 0x190 <delay>
+ 1fc:	90 93 0d 02 	sts	0x020D, r25	; 0x80020d <__data_end+0x1>
+ 200:	80 93 0c 02 	sts	0x020C, r24	; 0x80020c <__data_end>
+		PORTF &= 0x0;
+ 204:	81 b3       	in	r24, 0x11	; 17
+ 206:	11 ba       	out	0x11, r1	; 17
+		if(button >= 0)
+ 208:	80 91 0c 02 	lds	r24, 0x020C	; 0x80020c <__data_end>
+ 20c:	90 91 0d 02 	lds	r25, 0x020D	; 0x80020d <__data_end+0x1>
+ 210:	99 23       	and	r25, r25
+ 212:	8c f5       	brge	.+98     	; 0x276 <rotate+0x82>
+			return;
+		
+		PORTF |= 0x2;
+ 214:	89 9a       	sbi	0x11, 1	; 17
+		button = delay(1000);
+ 216:	88 ee       	ldi	r24, 0xE8	; 232
+ 218:	93 e0       	ldi	r25, 0x03	; 3
+ 21a:	ba df       	rcall	.-140    	; 0x190 <delay>
+ 21c:	90 93 0d 02 	sts	0x020D, r25	; 0x80020d <__data_end+0x1>
+ 220:	80 93 0c 02 	sts	0x020C, r24	; 0x80020c <__data_end>
+		PORTF &= 0x0;
+ 224:	81 b3       	in	r24, 0x11	; 17
+ 226:	11 ba       	out	0x11, r1	; 17
+		if(button >= 0)
+ 228:	80 91 0c 02 	lds	r24, 0x020C	; 0x80020c <__data_end>
+ 22c:	90 91 0d 02 	lds	r25, 0x020D	; 0x80020d <__data_end+0x1>
+ 230:	99 23       	and	r25, r25
+ 232:	0c f5       	brge	.+66     	; 0x276 <rotate+0x82>
+			return;
+		
+		PORTF |= 0x4;
+ 234:	8a 9a       	sbi	0x11, 2	; 17
+		button = delay(1000);
+ 236:	88 ee       	ldi	r24, 0xE8	; 232
+ 238:	93 e0       	ldi	r25, 0x03	; 3
+ 23a:	aa df       	rcall	.-172    	; 0x190 <delay>
+ 23c:	90 93 0d 02 	sts	0x020D, r25	; 0x80020d <__data_end+0x1>
+ 240:	80 93 0c 02 	sts	0x020C, r24	; 0x80020c <__data_end>
+		PORTF &= 0x0;
+ 244:	81 b3       	in	r24, 0x11	; 17
+ 246:	11 ba       	out	0x11, r1	; 17
+		if(button >= 0)
+ 248:	80 91 0c 02 	lds	r24, 0x020C	; 0x80020c <__data_end>
+ 24c:	90 91 0d 02 	lds	r25, 0x020D	; 0x80020d <__data_end+0x1>
+ 250:	99 23       	and	r25, r25
+ 252:	8c f4       	brge	.+34     	; 0x276 <rotate+0x82>
+			return;
+		
+		PORTF |= 0x8;
+		button = delay(1000);
+ 254:	8b 9a       	sbi	0x11, 3	; 17
+ 256:	88 ee       	ldi	r24, 0xE8	; 232
+ 258:	93 e0       	ldi	r25, 0x03	; 3
+ 25a:	9a df       	rcall	.-204    	; 0x190 <delay>
+ 25c:	90 93 0d 02 	sts	0x020D, r25	; 0x80020d <__data_end+0x1>
+ 260:	80 93 0c 02 	sts	0x020C, r24	; 0x80020c <__data_end>
+		PORTF &= 0x0;
+ 264:	81 b3       	in	r24, 0x11	; 17
+ 266:	11 ba       	out	0x11, r1	; 17
+		if(button >= 0)
+ 268:	80 91 0c 02 	lds	r24, 0x020C	; 0x80020c <__data_end>
+ 26c:	90 91 0d 02 	lds	r25, 0x020D	; 0x80020d <__data_end+0x1>
+ 270:	99 23       	and	r25, r25
+ 272:	0c f4       	brge	.+2      	; 0x276 <rotate+0x82>
+ 274:	bf cf       	rjmp	.-130    	; 0x1f4 <rotate>
+ 276:	08 95       	ret
+
+00000278 <flash>:
+}
+
+// flash the lights for 200 mSec and off for 1 sec
+void flash() {
+	while(1) {
+		PORTF |= 0xf;
+ 278:	81 b3       	in	r24, 0x11	; 17
+ 27a:	8f 60       	ori	r24, 0x0F	; 15
+ 27c:	81 bb       	out	0x11, r24	; 17
+		button = delay(200);
+ 27e:	88 ec       	ldi	r24, 0xC8	; 200
+ 280:	90 e0       	ldi	r25, 0x00	; 0
+ 282:	86 df       	rcall	.-244    	; 0x190 <delay>
+ 284:	90 93 0d 02 	sts	0x020D, r25	; 0x80020d <__data_end+0x1>
+ 288:	80 93 0c 02 	sts	0x020C, r24	; 0x80020c <__data_end>
+		PORTF &= 0x0;
+ 28c:	81 b3       	in	r24, 0x11	; 17
+ 28e:	11 ba       	out	0x11, r1	; 17
+		if(button >= 0)
+ 290:	80 91 0c 02 	lds	r24, 0x020C	; 0x80020c <__data_end>
+ 294:	90 91 0d 02 	lds	r25, 0x020D	; 0x80020d <__data_end+0x1>
+ 298:	99 23       	and	r25, r25
+ 29a:	7c f4       	brge	.+30     	; 0x2ba <flash+0x42>
+			return;
+		button = delay(1000);
+ 29c:	88 ee       	ldi	r24, 0xE8	; 232
+ 29e:	93 e0       	ldi	r25, 0x03	; 3
+ 2a0:	77 df       	rcall	.-274    	; 0x190 <delay>
+ 2a2:	90 93 0d 02 	sts	0x020D, r25	; 0x80020d <__data_end+0x1>
+ 2a6:	80 93 0c 02 	sts	0x020C, r24	; 0x80020c <__data_end>
+		PORTF &= 0x0;
+ 2aa:	81 b3       	in	r24, 0x11	; 17
+ 2ac:	11 ba       	out	0x11, r1	; 17
+		if(button >= 0)
+ 2ae:	80 91 0c 02 	lds	r24, 0x020C	; 0x80020c <__data_end>
+ 2b2:	90 91 0d 02 	lds	r25, 0x020D	; 0x80020d <__data_end+0x1>
+ 2b6:	99 23       	and	r25, r25
+ 2b8:	fc f2       	brlt	.-66     	; 0x278 <flash>
+ 2ba:	08 95       	ret
+
+000002bc <changeState>:
+	}
+	return -1;
+}
+
+void changeState() {
+	switch(state) {
+ 2bc:	80 91 0e 02 	lds	r24, 0x020E	; 0x80020e <state>
+ 2c0:	90 91 0f 02 	lds	r25, 0x020F	; 0x80020f <state+0x1>
+ 2c4:	81 30       	cpi	r24, 0x01	; 1
+ 2c6:	91 05       	cpc	r25, r1
+ 2c8:	19 f0       	breq	.+6      	; 0x2d0 <changeState+0x14>
+ 2ca:	02 97       	sbiw	r24, 0x02	; 2
+ 2cc:	19 f0       	breq	.+6      	; 0x2d4 <changeState+0x18>
+ 2ce:	04 c0       	rjmp	.+8      	; 0x2d8 <changeState+0x1c>
+		case 1:
+			rotate();
+ 2d0:	91 cf       	rjmp	.-222    	; 0x1f4 <rotate>
+			break;
+		case 2:
+			flash();
+ 2d2:	08 95       	ret
+			break;
+ 2d4:	d1 cf       	rjmp	.-94     	; 0x278 <flash>
+		default:
+			off();
+ 2d6:	08 95       	ret
+ 2d8:	3f cf       	rjmp	.-386    	; 0x158 <off>
+ 2da:	08 95       	ret
+
+000002dc <buttonPressed>:
+			break;
+	}	
+}
+
+void buttonPressed() {
+	if(button == 0){ 	//if button0 was pressed
+ 2dc:	e0 91 0c 02 	lds	r30, 0x020C	; 0x80020c <__data_end>
+ 2e0:	f0 91 0d 02 	lds	r31, 0x020D	; 0x80020d <__data_end+0x1>
+ 2e4:	30 97       	sbiw	r30, 0x00	; 0
+ 2e6:	81 f4       	brne	.+32     	; 0x308 <buttonPressed+0x2c>
+		state = stateTable[button][state]; //set state to new state based on button0;
+ 2e8:	e0 91 0e 02 	lds	r30, 0x020E	; 0x80020e <state>
+ 2ec:	f0 91 0f 02 	lds	r31, 0x020F	; 0x80020f <state+0x1>
+ 2f0:	ee 0f       	add	r30, r30
+ 2f2:	ff 1f       	adc	r31, r31
+ 2f4:	e0 50       	subi	r30, 0x00	; 0
+ 2f6:	fe 4f       	sbci	r31, 0xFE	; 254
+ 2f8:	80 81       	ld	r24, Z
+ 2fa:	91 81       	ldd	r25, Z+1	; 0x01
+ 2fc:	90 93 0f 02 	sts	0x020F, r25	; 0x80020f <state+0x1>
+ 300:	80 93 0e 02 	sts	0x020E, r24	; 0x80020e <state>
+		changeState();
+ 304:	db cf       	rjmp	.-74     	; 0x2bc <changeState>
+ 306:	08 95       	ret
+	} else { 		//button1 was pressed
+		state = stateTable[button][state]; //set state to new state based on button1;
+ 308:	cf 01       	movw	r24, r30
+ 30a:	88 0f       	add	r24, r24
+ 30c:	99 1f       	adc	r25, r25
+ 30e:	e8 0f       	add	r30, r24
+ 310:	f9 1f       	adc	r31, r25
+ 312:	80 91 0e 02 	lds	r24, 0x020E	; 0x80020e <state>
+ 316:	90 91 0f 02 	lds	r25, 0x020F	; 0x80020f <state+0x1>
+ 31a:	e8 0f       	add	r30, r24
+ 31c:	f9 1f       	adc	r31, r25
+ 31e:	ee 0f       	add	r30, r30
+ 320:	ff 1f       	adc	r31, r31
+ 322:	e0 50       	subi	r30, 0x00	; 0
+ 324:	fe 4f       	sbci	r31, 0xFE	; 254
+ 326:	80 81       	ld	r24, Z
+ 328:	91 81       	ldd	r25, Z+1	; 0x01
+ 32a:	90 93 0f 02 	sts	0x020F, r25	; 0x80020f <state+0x1>
+ 32e:	80 93 0e 02 	sts	0x020E, r24	; 0x80020e <state>
+		changeState();
+ 332:	c4 cf       	rjmp	.-120    	; 0x2bc <changeState>
+ 334:	08 95       	ret
+
+00000336 <main>:
+void changeState();
+void buttonPressed();
 
 int main(void)
 {
 	DDRF = 0x0f;
- 124:	8f e0       	ldi	r24, 0x0F	; 15
- 126:	80 bb       	out	0x10, r24	; 16
+ 336:	8f e0       	ldi	r24, 0x0F	; 15
+ 338:	80 bb       	out	0x10, r24	; 16
 	PORTF = 0xc0;
- 128:	80 ec       	ldi	r24, 0xC0	; 192
- 12a:	81 bb       	out	0x11, r24	; 17
-	state = 2;
- 12c:	82 e0       	ldi	r24, 0x02	; 2
- 12e:	90 e0       	ldi	r25, 0x00	; 0
- 130:	90 93 07 02 	sts	0x0207, r25	; 0x800207 <__data_end+0x1>
- 134:	80 93 06 02 	sts	0x0206, r24	; 0x800206 <__data_end>
+ 33a:	80 ec       	ldi	r24, 0xC0	; 192
+ 33c:	81 bb       	out	0x11, r24	; 17
+	state = 0;
+ 33e:	10 92 0f 02 	sts	0x020F, r1	; 0x80020f <state+0x1>
+ 342:	10 92 0e 02 	sts	0x020E, r1	; 0x80020e <state>
+	
+    while((PINF & 0x40) && (PINF & 0x80));	//wait for a button to be pressed
+ 346:	7e 9b       	sbis	0x0f, 6	; 15
+ 348:	02 c0       	rjmp	.+4      	; 0x34e <main+0x18>
+ 34a:	7f 99       	sbic	0x0f, 7	; 15
+ 34c:	fc cf       	rjmp	.-8      	; 0x346 <main+0x10>
+    if((PINF & 0x40) == 0){ 		//if button0 was pressed
+ 34e:	7e 99       	sbic	0x0f, 6	; 15
+ 350:	07 c0       	rjmp	.+14     	; 0x360 <main+0x2a>
+	    while(!(PINF & 0x40));  		//wait for button0 to be released
+ 352:	7e 9b       	sbis	0x0f, 6	; 15
+ 354:	fe cf       	rjmp	.-4      	; 0x352 <main+0x1c>
+	    button = 0;
+ 356:	10 92 0d 02 	sts	0x020D, r1	; 0x80020d <__data_end+0x1>
+ 35a:	10 92 0c 02 	sts	0x020C, r1	; 0x80020c <__data_end>
+ 35e:	08 c0       	rjmp	.+16     	; 0x370 <main+0x3a>
+    } else { 				//button1 was pressed
+	    while(!(PINF & 0x80));  		//wait for button1 to be released
+ 360:	7f 9b       	sbis	0x0f, 7	; 15
+ 362:	fe cf       	rjmp	.-4      	; 0x360 <main+0x2a>
+	    button = 1;
+ 364:	81 e0       	ldi	r24, 0x01	; 1
+ 366:	90 e0       	ldi	r25, 0x00	; 0
+ 368:	90 93 0d 02 	sts	0x020D, r25	; 0x80020d <__data_end+0x1>
+ 36c:	80 93 0c 02 	sts	0x020C, r24	; 0x80020c <__data_end>
+    }
 	
     while (1) 
     {
-	    while((PINF & 0x40) && (PINF & 0x80));
- 138:	7e 9b       	sbis	0x0f, 6	; 15
- 13a:	02 c0       	rjmp	.+4      	; 0x140 <main+0x1c>
- 13c:	7f 99       	sbic	0x0f, 7	; 15
- 13e:	fc cf       	rjmp	.-8      	; 0x138 <main+0x14>
-		    if((PINF & 0x40) == 0){ //if button0 was pressed
- 140:	7e 99       	sbic	0x0f, 6	; 15
- 142:	14 c0       	rjmp	.+40     	; 0x16c <main+0x48>
-			    //wait for button to be released
-			    while(!(PINF & 0x40));
- 144:	7e 9b       	sbis	0x0f, 6	; 15
- 146:	fe cf       	rjmp	.-4      	; 0x144 <main+0x20>
-			    PORTF |= 0xf;
- 148:	81 b3       	in	r24, 0x11	; 17
- 14a:	8f 60       	ori	r24, 0x0F	; 15
- 14c:	81 bb       	out	0x11, r24	; 17
-			    state = button0[state]; //set state to new state based on button0;
- 14e:	e0 91 06 02 	lds	r30, 0x0206	; 0x800206 <__data_end>
- 152:	f0 91 07 02 	lds	r31, 0x0207	; 0x800207 <__data_end+0x1>
- 156:	ee 0f       	add	r30, r30
- 158:	ff 1f       	adc	r31, r31
- 15a:	e0 50       	subi	r30, 0x00	; 0
- 15c:	fe 4f       	sbci	r31, 0xFE	; 254
- 15e:	80 81       	ld	r24, Z
- 160:	91 81       	ldd	r25, Z+1	; 0x01
- 162:	90 93 07 02 	sts	0x0207, r25	; 0x800207 <__data_end+0x1>
- 166:	80 93 06 02 	sts	0x0206, r24	; 0x800206 <__data_end>
- 16a:	e6 cf       	rjmp	.-52     	; 0x138 <main+0x14>
-			} else { //button1 was pressed
-			    //wait for button1 to be released
-			    while(!(PINF & 0x80));
- 16c:	7f 9b       	sbis	0x0f, 7	; 15
- 16e:	fe cf       	rjmp	.-4      	; 0x16c <main+0x48>
-			    PORTF &= 0x0;
- 170:	81 b3       	in	r24, 0x11	; 17
- 172:	11 ba       	out	0x11, r1	; 17
-			    state = button0[state]; //set state to new state based on button1;
- 174:	e0 91 06 02 	lds	r30, 0x0206	; 0x800206 <__data_end>
- 178:	f0 91 07 02 	lds	r31, 0x0207	; 0x800207 <__data_end+0x1>
- 17c:	ee 0f       	add	r30, r30
- 17e:	ff 1f       	adc	r31, r31
- 180:	e0 50       	subi	r30, 0x00	; 0
- 182:	fe 4f       	sbci	r31, 0xFE	; 254
- 184:	80 81       	ld	r24, Z
- 186:	91 81       	ldd	r25, Z+1	; 0x01
- 188:	90 93 07 02 	sts	0x0207, r25	; 0x800207 <__data_end+0x1>
- 18c:	80 93 06 02 	sts	0x0206, r24	; 0x800206 <__data_end>
- 190:	d3 cf       	rjmp	.-90     	; 0x138 <main+0x14>
+	        buttonPressed();
+ 370:	b5 df       	rcall	.-150    	; 0x2dc <buttonPressed>
+ 372:	fe cf       	rjmp	.-4      	; 0x370 <main+0x3a>
 
-00000192 <_exit>:
- 192:	f8 94       	cli
+00000374 <__umulhisi3>:
+ 374:	a2 9f       	mul	r26, r18
+ 376:	b0 01       	movw	r22, r0
+ 378:	b3 9f       	mul	r27, r19
+ 37a:	c0 01       	movw	r24, r0
+ 37c:	a3 9f       	mul	r26, r19
+ 37e:	70 0d       	add	r23, r0
+ 380:	81 1d       	adc	r24, r1
+ 382:	11 24       	eor	r1, r1
+ 384:	91 1d       	adc	r25, r1
+ 386:	b2 9f       	mul	r27, r18
+ 388:	70 0d       	add	r23, r0
+ 38a:	81 1d       	adc	r24, r1
+ 38c:	11 24       	eor	r1, r1
+ 38e:	91 1d       	adc	r25, r1
+ 390:	08 95       	ret
 
-00000194 <__stop_program>:
- 194:	ff cf       	rjmp	.-2      	; 0x194 <__stop_program>
+00000392 <_exit>:
+ 392:	f8 94       	cli
+
+00000394 <__stop_program>:
+ 394:	ff cf       	rjmp	.-2      	; 0x394 <__stop_program>
