@@ -6,7 +6,6 @@
  */ 
 
 #include <avr/io.h>
-#include <util/delay.h>
 
 
 static int state;
@@ -18,65 +17,86 @@ void off();
 void rotate();
 void flash();
 
+void delay_usec(unsigned int);
+
 int main(void)
 {
-	DDRF = 0xcf;
+	DDRF = 0x0f;
 	PORTF = 0xc0;
-	int prevState;
-    /* Replace with your application code */
+	state = 2;
+	
     while (1) 
     {
+	    while((PINF & 0x40) && (PINF & 0x80));
+		    if((PINF & 0x40) == 0){ //if button0 was pressed
+			    //wait for button to be released
+			    while(!(PINF & 0x40));
+			    PORTF |= 0xf;
+			    state = button0[state]; //set state to new state based on button0;
+			} else { //button1 was pressed
+			    //wait for button1 to be released
+			    while(!(PINF & 0x80));
+			    PORTF &= 0x0;
+			    state = button0[state]; //set state to new state based on button1;
+		    }
 		/*
-		if(prevState != state) {
-			prevState = state;
-			
+		//wait for a button to be pressed
+		while((PINF & 0x40) && (PINF & 0x80)) {
+			switch(state) {
+				case 1:
+					rotate();
+					break;
+				case 2:
+					flash();
+					break;
+				default:
+					off();
+					break;
+			}
 		}
-		*/
-		//wait for button 1 to be pressed
-		while((PORTF & 0x80));
-		while(~(PORTF & 0x80));
-		PORTF |= 3;
-		/*
-		switch(state) {
-			case 0:
-				off();
-				break;
-			case 1:
-				rotate();
-				break;
-			case 2:
-				flash();
+		//PORTF = 0;
+		if((PINF & 0x40) == 0){ //if button0 was pressed
+			//wait for button to be released
+			while(!(PINF & 0x40));
+			PORTF |= 0x4;
+			state = button0[state]; //set state to new state based on button0;
+		} else { //button1 was pressed
+			//wait for button1 to be released
+			while(!(PINF & 0x80));
+			PORTF |= 0x2;
+			state = button0[state]; //set state to new state based on button1;
 		}
 		*/
 	}
-		
 }
 
 //lights are off
 void off() {
-	PORTF &= 0xf0;
+	if(PORTF != 0)
+		PORTF &= 0x0;
 }
 
-//rotate the lights being on from 0 - 4 each in turn
+//rotate the lights being on from 0 - 3 each in turn
 void rotate() {
-	while(0) { //a button has not been pressed
-		PORTF |= 0x01;
-		_delay_ms(1000);
-		PORTF &= 0x00;
-		PORTF |= 0x02;
-		_delay_ms(1000);
-		PORTF &= 0x00;
-		PORTF |= 0x04;
-		_delay_ms(1000);
-		PORTF &= 0x00;
-		PORTF |= 0x08;
-		_delay_ms(1000);
-	}
+	PORTF |= 0x1;
+	delay_usec(1000);
+	PORTF &= 0x0;
+	PORTF |= 0x2;
+	delay_usec(1000);
+	PORTF &= 0x0;
+	PORTF |= 0x4;
+	delay_usec(1000);
+	PORTF &= 0x0;
+	PORTF |= 0x8;
+	delay_usec(1000);
+	PORTF &= 0x0;
 }
 
 // flash the lights for 200 mSec and off for 1 sec
 void flash() {
-	_delay_ms(200);
-	_delay_ms(1000);
+	PORTF |= 0xf;
+	delay_usec(200);
+	PORTF &= 0x0;
+	delay_usec(1000);
 }
 
