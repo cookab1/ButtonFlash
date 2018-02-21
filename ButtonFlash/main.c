@@ -6,97 +6,157 @@
  */ 
 
 #include <avr/io.h>
+#include <util/delay.h>
 
-
-static int state;
-
-int button0[] = {1,0,1};
-int button1[] = {2,2,0};
+int stateTable[2][3] = {{1,0,1},
+					    {2,2,0}};
+int state;
+int button;
 
 void off();
 void rotate();
 void flash();
 
+
 void delay_usec(unsigned int);
+void delay(unsigned int);
+void changeState();
+void buttonPressed();
 
 int main(void)
 {
 	DDRF = 0x0f;
-	PORTF = 0xc0;
-	state = 2;
+	PORTF |= 0xc0;
+	state = 0;
 	
     while (1) 
     {
-	    while((PINF & 0x40) && (PINF & 0x80));
-		    if((PINF & 0x40) == 0){ //if button0 was pressed
-			    //wait for button to be released
-			    while(!(PINF & 0x40));
-			    PORTF |= 0xf;
-			    state = button0[state]; //set state to new state based on button0;
-			} else { //button1 was pressed
-			    //wait for button1 to be released
-			    while(!(PINF & 0x80));
-			    PORTF &= 0x0;
-			    state = button0[state]; //set state to new state based on button1;
-		    }
-		/*
-		//wait for a button to be pressed
-		while((PINF & 0x40) && (PINF & 0x80)) {
-			switch(state) {
-				case 1:
-					rotate();
-					break;
-				case 2:
-					flash();
-					break;
-				default:
-					off();
-					break;
-			}
-		}
-		//PORTF = 0;
-		if((PINF & 0x40) == 0){ //if button0 was pressed
-			//wait for button to be released
-			while(!(PINF & 0x40));
-			PORTF |= 0x4;
-			state = button0[state]; //set state to new state based on button0;
-		} else { //button1 was pressed
-			//wait for button1 to be released
-			while(!(PINF & 0x80));
-			PORTF |= 0x2;
-			state = button0[state]; //set state to new state based on button1;
-		}
-		*/
-	}
+	    switch(state) {
+			case 0:
+				off();
+				break;
+		    case 1:
+				rotate();
+				break;
+		    case 2:
+				flash();
+				break;
+	    }
+    }
 }
 
 //lights are off
 void off() {
-	if(PORTF != 0)
-		PORTF &= 0x0;
+	if((PORTF & 0x0f) != 0)
+		PORTF &= 0xf0;
+		
+	while(1) {
+		delay(1000);
+		if(state != 0)
+			return;
+	}
 }
 
 //rotate the lights being on from 0 - 3 each in turn
 void rotate() {
-	PORTF |= 0x1;
-	delay_usec(1000);
-	PORTF &= 0x0;
-	PORTF |= 0x2;
-	delay_usec(1000);
-	PORTF &= 0x0;
-	PORTF |= 0x4;
-	delay_usec(1000);
-	PORTF &= 0x0;
-	PORTF |= 0x8;
-	delay_usec(1000);
-	PORTF &= 0x0;
+	while(1) {
+		PORTF |= 0x1;
+		delay(1000);
+		PORTF &= 0xf0;
+		if(state != 1)
+			return;
+		
+		PORTF |= 0x2;
+		delay(1000);
+		PORTF &= 0xf0;
+		if(state != 1)
+			return;
+		
+		PORTF |= 0x4;
+		delay(1000);
+		PORTF &= 0xf0;
+		if(state != 1)
+			return;
+		
+		PORTF |= 0x8;
+		delay(1000);
+		PORTF &= 0xf0;
+		if(state != 1)
+			return;
+	}
 }
 
 // flash the lights for 200 mSec and off for 1 sec
 void flash() {
-	PORTF |= 0xf;
-	delay_usec(200);
-	PORTF &= 0x0;
-	delay_usec(1000);
+	//decrement counter 40 for 200 ms
+	while(1) {
+		PORTF |= 0x0f;
+		delay(200);
+		if(state != 2) {
+			PORTF &= 0xf0;
+			return;
+		}
+		PORTF &= 0xf0;
+		delay(1000);
+		if(state != 2) {
+			return;
+		}
+	}
+}
+
+void delay(unsigned int msec) {
+	
+	int pins;
+	unsigned int count = msec / 5;
+	int done = 0;
+	int bothPressed = 0;
+	
+	while(!done) {
+		pins = (PINF >> 6) & 0x3;
+		switch (pins) {
+		case 0x3: //no buttons pressed
+			while((count > 0) && (0x3 == ((PINF >> 6) & 0x3))) {
+				_delay_ms(5);
+				count--;
+			}
+			break;
+			
+		case 0x2: //button0 pressed
+			while((count > 0) && (0x2 == ((PINF >> 6) & 0x3))) {
+				_delay_ms(5);
+				count--;
+			}
+			if((0x3 == ((PINF >> 6) & 0x3)) || (bothPressed && (0x2 == ((PINF >> 6) & 0x3)))) { //button0 released
+				if(bothPressed)
+					state = stateTable[1][state];
+				else
+					state = stateTable[0][state];
+				done = 1;
+			}
+			break;
+		
+		case 0x1: //button1 pressed
+			for(; ((count > 0) && (0x1 == ((PINF >> 6) & 0x3))); count--) {
+				_delay_ms(5);
+			}
+			if((0x3 == ((PINF >> 6) & 0x3)) || (bothPressed && (0x1 == ((PINF >> 6) & 0x3)))) { //button1 released
+				if(bothPressed)
+					state = stateTable[0][state];
+				else
+					state = stateTable[1][state];
+				done = 1;
+			}
+			break;
+		
+		case 0x0: //both buttons pressed
+			bothPressed = 1;
+			for(; ((count > 0) && (0x0 == ((PINF >> 6) & 0x3))); count--) {
+				_delay_ms(5);
+			}
+			break;
+		}
+		if(count == 0)
+			done = 1;
+	}
 }
 
