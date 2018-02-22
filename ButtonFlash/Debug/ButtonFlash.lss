@@ -13,21 +13,21 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY
   4 .note.gnu.avr.deviceinfo 00000040  00000000  00000000  00000520  2**2
                   CONTENTS, READONLY
-  5 .debug_aranges 00000040  00000000  00000000  00000560  2**0
+  5 .debug_aranges 00000058  00000000  00000000  00000560  2**0
                   CONTENTS, READONLY, DEBUGGING
-  6 .debug_info   00000f42  00000000  00000000  000005a0  2**0
+  6 .debug_info   00000ffa  00000000  00000000  000005b8  2**0
                   CONTENTS, READONLY, DEBUGGING
-  7 .debug_abbrev 00000cb2  00000000  00000000  000014e2  2**0
+  7 .debug_abbrev 00000d20  00000000  00000000  000015b2  2**0
                   CONTENTS, READONLY, DEBUGGING
-  8 .debug_line   00000590  00000000  00000000  00002194  2**0
+  8 .debug_line   00000649  00000000  00000000  000022d2  2**0
                   CONTENTS, READONLY, DEBUGGING
-  9 .debug_frame  00000064  00000000  00000000  00002724  2**2
+  9 .debug_frame  00000078  00000000  00000000  0000291c  2**2
                   CONTENTS, READONLY, DEBUGGING
- 10 .debug_str    000005c9  00000000  00000000  00002788  2**0
+ 10 .debug_str    000005dc  00000000  00000000  00002994  2**0
                   CONTENTS, READONLY, DEBUGGING
- 11 .debug_loc    000001e4  00000000  00000000  00002d51  2**0
+ 11 .debug_loc    000001e4  00000000  00000000  00002f70  2**0
                   CONTENTS, READONLY, DEBUGGING
- 12 .debug_ranges 00000030  00000000  00000000  00002f35  2**0
+ 12 .debug_ranges 00000038  00000000  00000000  00003154  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -214,8 +214,8 @@ void delay(unsigned int msec) {
 				done = 1;
 			}
 			break;
-		
-		case 0x0: //both buttons pressed
+			
+			case 0x0: //both buttons pressed
 			bothPressed = 1;
  138:	71 e0       	ldi	r23, 0x01	; 1
  13a:	60 e0       	ldi	r22, 0x00	; 0
@@ -247,7 +247,7 @@ void delay(unsigned int msec) {
  154:	23 30       	cpi	r18, 0x03	; 3
  156:	09 f0       	breq	.+2      	; 0x15a <delay+0x36>
  158:	e1 c0       	rjmp	.+450    	; 0x31c <delay+0x1f8>
-		case 0x3: //no buttons pressed
+			case 0x3: //no buttons pressed
 			while((count > 0) && (0x3 == ((PINF >> 6) & 0x3))) {
  15a:	00 97       	sbiw	r24, 0x00	; 0
  15c:	09 f4       	brne	.+2      	; 0x160 <delay+0x3c>
@@ -264,7 +264,7 @@ void delay(unsigned int msec) {
 			}
 			break;
 			
-		case 0x2: //button0 pressed
+			case 0x2: //button0 pressed
 			while((count > 0) && (0x2 == ((PINF >> 6) & 0x3))) {
  170:	00 97       	sbiw	r24, 0x00	; 0
  172:	09 f4       	brne	.+2      	; 0x176 <delay+0x52>
@@ -280,8 +280,8 @@ void delay(unsigned int msec) {
 				done = 1;
 			}
 			break;
-		
-		case 0x1: //button1 pressed
+			
+			case 0x1: //button1 pressed
 			for(; ((count > 0) && (0x1 == ((PINF >> 6) & 0x3))); count--) {
  186:	00 97       	sbiw	r24, 0x00	; 0
  188:	09 f4       	brne	.+2      	; 0x18c <delay+0x68>
@@ -297,8 +297,8 @@ void delay(unsigned int msec) {
  19c:	75 c0       	rjmp	.+234    	; 0x288 <delay+0x164>
 			}
 			break;
-		
-		case 0x0: //both buttons pressed
+			
+			case 0x0: //both buttons pressed
 			bothPressed = 1;
 			for(; ((count > 0) && (0x0 == ((PINF >> 6) & 0x3))); count--) {
  19e:	00 97       	sbiw	r24, 0x00	; 0
@@ -314,8 +314,8 @@ void delay(unsigned int msec) {
 				done = 1;
 			}
 			break;
-		
-		case 0x0: //both buttons pressed
+			
+			case 0x0: //both buttons pressed
 			bothPressed = 1;
  1b2:	47 2f       	mov	r20, r23
  1b4:	56 2f       	mov	r21, r22
@@ -334,7 +334,7 @@ void delay(unsigned int msec) {
  1c2:	00 00       	nop
 		pins = (PINF >> 6) & 0x3;
 		switch (pins) {
-		case 0x3: //no buttons pressed
+			case 0x3: //no buttons pressed
 			while((count > 0) && (0x3 == ((PINF >> 6) & 0x3))) {
 				_delay_ms(5);
 				count--;
@@ -343,7 +343,7 @@ void delay(unsigned int msec) {
 	while(!done) {
 		pins = (PINF >> 6) & 0x3;
 		switch (pins) {
-		case 0x3: //no buttons pressed
+			case 0x3: //no buttons pressed
 			while((count > 0) && (0x3 == ((PINF >> 6) & 0x3))) {
  1c6:	09 f4       	brne	.+2      	; 0x1ca <delay+0xa6>
  1c8:	b4 c0       	rjmp	.+360    	; 0x332 <delay+0x20e>
@@ -363,7 +363,7 @@ void delay(unsigned int msec) {
  1e4:	00 00       	nop
 			break;
 			
-		case 0x2: //button0 pressed
+			case 0x2: //button0 pressed
 			while((count > 0) && (0x2 == ((PINF >> 6) & 0x3))) {
 				_delay_ms(5);
 				count--;
@@ -372,7 +372,7 @@ void delay(unsigned int msec) {
 			}
 			break;
 			
-		case 0x2: //button0 pressed
+			case 0x2: //button0 pressed
 			while((count > 0) && (0x2 == ((PINF >> 6) & 0x3))) {
  1e8:	39 f0       	breq	.+14     	; 0x1f8 <delay+0xd4>
  1ea:	2f b1       	in	r18, 0x0f	; 15
@@ -410,7 +410,7 @@ void delay(unsigned int msec) {
  220:	41 15       	cp	r20, r1
  222:	51 05       	cpc	r21, r1
  224:	89 f0       	breq	.+34     	; 0x248 <delay+0x124>
-					state = stateTable[1][state];
+				state = stateTable[1][state];
  226:	a0 91 0e 02 	lds	r26, 0x020E	; 0x80020e <state>
  22a:	b0 91 0f 02 	lds	r27, 0x020F	; 0x80020f <state+0x1>
  22e:	aa 0f       	add	r26, r26
@@ -422,7 +422,7 @@ void delay(unsigned int msec) {
  23a:	30 93 0f 02 	sts	0x020F, r19	; 0x80020f <state+0x1>
  23e:	20 93 0e 02 	sts	0x020E, r18	; 0x80020e <state>
 				else
-					state = stateTable[0][state];
+				state = stateTable[0][state];
 				done = 1;
  242:	27 2f       	mov	r18, r23
  244:	36 2f       	mov	r19, r22
@@ -430,9 +430,9 @@ void delay(unsigned int msec) {
 			}
 			if((0x3 == ((PINF >> 6) & 0x3)) || (bothPressed && (0x2 == ((PINF >> 6) & 0x3)))) { //button0 released
 				if(bothPressed)
-					state = stateTable[1][state];
+				state = stateTable[1][state];
 				else
-					state = stateTable[0][state];
+				state = stateTable[0][state];
  248:	a0 91 0e 02 	lds	r26, 0x020E	; 0x80020e <state>
  24c:	b0 91 0f 02 	lds	r27, 0x020F	; 0x80020f <state+0x1>
  250:	aa 0f       	add	r26, r26
@@ -455,8 +455,8 @@ void delay(unsigned int msec) {
  274:	00 00       	nop
 			}
 			break;
-		
-		case 0x1: //button1 pressed
+			
+			case 0x1: //button1 pressed
 			for(; ((count > 0) && (0x1 == ((PINF >> 6) & 0x3))); count--) {
  276:	01 97       	sbiw	r24, 0x01	; 1
  278:	39 f0       	breq	.+14     	; 0x288 <delay+0x164>
@@ -494,7 +494,7 @@ void delay(unsigned int msec) {
  2b0:	41 15       	cp	r20, r1
  2b2:	51 05       	cpc	r21, r1
  2b4:	89 f0       	breq	.+34     	; 0x2d8 <delay+0x1b4>
-					state = stateTable[0][state];
+				state = stateTable[0][state];
  2b6:	a0 91 0e 02 	lds	r26, 0x020E	; 0x80020e <state>
  2ba:	b0 91 0f 02 	lds	r27, 0x020F	; 0x80020f <state+0x1>
  2be:	aa 0f       	add	r26, r26
@@ -506,7 +506,7 @@ void delay(unsigned int msec) {
  2ca:	30 93 0f 02 	sts	0x020F, r19	; 0x80020f <state+0x1>
  2ce:	20 93 0e 02 	sts	0x020E, r18	; 0x80020e <state>
 				else
-					state = stateTable[1][state];
+				state = stateTable[1][state];
 				done = 1;
  2d2:	27 2f       	mov	r18, r23
  2d4:	36 2f       	mov	r19, r22
@@ -514,9 +514,9 @@ void delay(unsigned int msec) {
 			}
 			if((0x3 == ((PINF >> 6) & 0x3)) || (bothPressed && (0x1 == ((PINF >> 6) & 0x3)))) { //button1 released
 				if(bothPressed)
-					state = stateTable[0][state];
+				state = stateTable[0][state];
 				else
-					state = stateTable[1][state];
+				state = stateTable[1][state];
  2d8:	a0 91 0e 02 	lds	r26, 0x020E	; 0x80020e <state>
  2dc:	b0 91 0f 02 	lds	r27, 0x020F	; 0x80020f <state+0x1>
  2e0:	aa 0f       	add	r26, r26
@@ -539,8 +539,8 @@ void delay(unsigned int msec) {
  304:	00 00       	nop
 			}
 			break;
-		
-		case 0x0: //both buttons pressed
+			
+			case 0x0: //both buttons pressed
 			bothPressed = 1;
 			for(; ((count > 0) && (0x0 == ((PINF >> 6) & 0x3))); count--) {
  306:	01 97       	sbiw	r24, 0x01	; 1
@@ -554,8 +554,8 @@ void delay(unsigned int msec) {
 				done = 1;
 			}
 			break;
-		
-		case 0x0: //both buttons pressed
+			
+			case 0x0: //both buttons pressed
 			bothPressed = 1;
  316:	47 2f       	mov	r20, r23
  318:	56 2f       	mov	r21, r22
@@ -598,8 +598,8 @@ void delay(unsigned int msec) {
  332:	08 95       	ret
 
 00000334 <off>:
-    }
-}
+int stateTable[2][3] = {{1,0,1},
+{2,2,0}};
 
 //lights are off
 void off() {
@@ -607,11 +607,11 @@ void off() {
  334:	81 b3       	in	r24, 0x11	; 17
  336:	8f 70       	andi	r24, 0x0F	; 15
  338:	19 f0       	breq	.+6      	; 0x340 <off+0xc>
-		PORTF &= 0xf0;
+	PORTF &= 0xf0;
  33a:	81 b3       	in	r24, 0x11	; 17
  33c:	80 7f       	andi	r24, 0xF0	; 240
  33e:	81 bb       	out	0x11, r24	; 17
-		
+	
 	while(1) {
 		delay(1000);
  340:	88 ee       	ldi	r24, 0xE8	; 232
@@ -622,7 +622,7 @@ void off() {
  34a:	90 91 0f 02 	lds	r25, 0x020F	; 0x80020f <state+0x1>
  34e:	89 2b       	or	r24, r25
  350:	b9 f3       	breq	.-18     	; 0x340 <off+0xc>
-			return;
+		return;
 	}
 }
  352:	08 95       	ret
@@ -647,7 +647,7 @@ void rotate() {
  366:	90 91 0f 02 	lds	r25, 0x020F	; 0x80020f <state+0x1>
  36a:	01 97       	sbiw	r24, 0x01	; 1
  36c:	39 f5       	brne	.+78     	; 0x3bc <rotate+0x68>
-			return;
+		return;
 		
 		PORTF |= 0x2;
  36e:	89 9a       	sbi	0x11, 1	; 17
@@ -664,7 +664,7 @@ void rotate() {
  380:	90 91 0f 02 	lds	r25, 0x020F	; 0x80020f <state+0x1>
  384:	01 97       	sbiw	r24, 0x01	; 1
  386:	d1 f4       	brne	.+52     	; 0x3bc <rotate+0x68>
-			return;
+		return;
 		
 		PORTF |= 0x4;
  388:	8a 9a       	sbi	0x11, 2	; 17
@@ -681,7 +681,7 @@ void rotate() {
  39a:	90 91 0f 02 	lds	r25, 0x020F	; 0x80020f <state+0x1>
  39e:	01 97       	sbiw	r24, 0x01	; 1
  3a0:	69 f4       	brne	.+26     	; 0x3bc <rotate+0x68>
-			return;
+		return;
 		
 		PORTF |= 0x8;
 		delay(1000);
@@ -742,8 +742,8 @@ void flash() {
  3f6:	08 95       	ret
 
 000003f8 <main>:
-void changeState();
-void buttonPressed();
+#include "buttonFlash.h"
+
 
 int main(void)
 {
